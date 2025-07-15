@@ -4,7 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from . import models, serializers, filters
 
 
-class NewsItemViewSet(viewsets.ReadOnlyModelViewSet):
+class NewsItemViewSet(viewsets.ModelViewSet):
     """ Handles visiting and searching among news """
     queryset = models.NewsItem.objects.all()
     serializer_class = serializers.NewsItemSerializer

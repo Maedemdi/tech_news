@@ -12,9 +12,11 @@ class TagSerializer(serializers.ModelSerializer):
 
 class NewsItemSerializer(serializers.ModelSerializer):
     """Handles the serialization of the Tag model instances"""
-    tags = TagSerializer(many=True, read_only=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=models.Tag.objects.all()
+    )
     class Meta:
         model = models.NewsItem
-        fields = '__all__' 
+        fields = ('id', 'title', 'text', 'tags', 'source')
 
 
