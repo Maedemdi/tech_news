@@ -1,12 +1,10 @@
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/items.html
-
-import scrapy
+from scrapy import Item, Field
+from itemloaders.processors import MapCompose, TakeFirst
 
 
-class ScraperItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class ScraperItem(Item):
+    title = Field(output_processor = TakeFirst())
+    text = Field()
+    # tags = Field()
+    created_at = Field(output_processor = TakeFirst())
+    # writer = Field(output_processor = TakeFirst())
