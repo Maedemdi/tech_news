@@ -40,5 +40,6 @@ class ZoomitSpiderSpider(scrapy.Spider):
                     "text": content,
                     "created_at": created_at,
                     "tags": tags,
-                    "writer": writer
+                    "writer": writer,
+                    "source": response.url
                 }
