@@ -7,7 +7,7 @@ class NewsItem(models.Model):
     created_at = models.DateField(auto_now_add= True)
     updated_at = models.DateField(auto_now= True)
     tags = models.ManyToManyField("Tag")
-    source = models.ManyToManyField("Source")
+    source = models.ForeignKey("Source", on_delete= models.CASCADE, null= True)
 
     class Meta:
         ordering = ['-created_at']
@@ -24,7 +24,7 @@ class Tag(models.Model):
 
 class Source(models.Model):
     """ Sources of each news item """
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, null= True)
     url = models.URLField(max_length=200, blank=True, null=True)
 
     def __str__(self):
