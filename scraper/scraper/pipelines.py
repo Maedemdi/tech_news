@@ -33,15 +33,32 @@ from News_app.models import NewsItem, Tag, Source
 
 #         return item
         
-
+from django.db import close_old_connections
 from twisted.internet.threads import deferToThread
+from twisted.internet.defer import inlineCallbacks
 
 class SaveNewsToDBPipeline:
+
+    def __init__(self):
+        self.existing_urls = set()
+
+    @inlineCallbacks
+    def open_spider(self, spider):
+        close_old_connections()
+        self.existing_urls = yield deferToThread(self._load_existing_urls)
+
+    def _load_existing_urls(self):
+        return set(NewsItem.objects.values_list('source__url', flat=True)) 
 
     def process_item(self, item, spider):
         return deferToThread(self._save_to_db, item)
 
     def _save_to_db(self, item):
+
+        if item['source'] in self.existing_urls:
+            return "The remaining items were previously saved."
+        
+
         source_item,_=Source.objects.get_or_create(
             name="Zoomit.ir",
             url=item['source']
@@ -55,4 +72,6 @@ class SaveNewsToDBPipeline:
         for tag in item['tags']:
             tag_item,_ = Tag.objects.get_or_create(caption=tag)
             news_item.tags.add(tag_item)
+
+        self.existing_urls.add(item['source'])
         return item

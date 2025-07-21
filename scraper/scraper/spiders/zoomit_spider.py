@@ -1,5 +1,5 @@
 import scrapy
-
+from scrapy_playwright.page import PageMethod
 
 class ZoomitSpiderSpider(scrapy.Spider):
     name = "zoomit_spider"
@@ -15,23 +15,44 @@ class ZoomitSpiderSpider(scrapy.Spider):
                 meta={
                     "playwright": True,
                     "playwright_page_methods": [
-                        {"method": "wait_for_selector", "args": ['a.cursor-pointer']},
-                    ],
+                    PageMethod("wait_for_selector", 'a.cursor-pointer')
+                ],
                 },
             )
         
     def parse(self, response):
+        current_page = 1
+
         urls = response.css('div.flex div a::attr(href)').getall()
-        for url in urls:
+        for url in urls: 
             yield scrapy.Request(
                 url= url,
                 meta={
                         "playwright": True,
                         "playwright_page_methods": [
-                        {"method": "wait_for_selector", "args": ['a.cursor-pointer']},
-                    ]},
+                        PageMethod("wait_for_selector", 'a.cursor-pointer')],
+                        "playwright_page_goto_kwargs": {
+                        "timeout": 60000,
+                        "wait_until": "domcontentloaded",
+                    },},
                     callback= self.parse_details
                 )
+            
+        if current_page < 6 and response.css("button.sc-9bfa8572-0.jbTKNm.sc-7273a243-1.hnOzQz"):
+            current_page += 1
+            yield scrapy.Request(
+                url=response.url,
+                callback=self.parse,
+                dont_filter=True,
+                meta={
+                    "playwright": True,
+                    "playwright_page_methods": [
+                        PageMethod("click", "button.sc-9bfa8572-0.jbTKNm.sc-7273a243-1.hnOzQz"),
+                        PageMethod("wait_for_selector", "div.flex div a"),
+                    ],
+                },
+            )
+
 
 
     def parse_details(self, response):
