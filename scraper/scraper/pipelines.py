@@ -35,5 +35,4 @@ class SaveNewsToDBPipeline:
             tag_item,_ = Tag.objects.get_or_create(caption=tag)
             news_item.tags.add(tag_item)
 
-        # self.existing_urls.add(item['source'])
         return item
