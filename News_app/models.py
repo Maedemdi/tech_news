@@ -7,10 +7,8 @@ class NewsItem(models.Model):
     created_at = models.DateField(auto_now_add= True)
     updated_at = models.DateField(auto_now= True)
     tags = models.ManyToManyField("Tag")
-    source = models.ForeignKey("Source", on_delete= models.CASCADE, null= True)
+    source = models.OneToOneField("Source", on_delete= models.CASCADE, null= True)
 
-    class Meta:
-        ordering = ['-created_at']
 
 
 class Tag(models.Model):
