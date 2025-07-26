@@ -24,6 +24,7 @@ djangorestframework==3.16.0
 filelock==3.18.0
 flower==2.0.1
 greenlet==3.2.3
+gunicorn==23.0.0
 humanize==4.12.3
 hyperlink==21.0.0
 idna==3.10
