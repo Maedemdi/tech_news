@@ -21,6 +21,7 @@ def run_scraper():
         )
 
     if result.returncode == 0 :
+        print(result.stdout)
         return "Scrapy executed successfully!"
     else: 
         return "Scrapy failed!"
