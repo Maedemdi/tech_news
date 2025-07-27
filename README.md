@@ -159,7 +159,7 @@ Five main services are included in containerized version of the app:
 - Depends on database and Redis services
 
 **Database Service**
-- PostgreSQL 15 instance
+- PostgreSQL 15 instance (Switched to Postgresql since sqlite3 does not support concurrency)
 - Persistent data storage using Docker volumes
 - Environment-based configuration
 
