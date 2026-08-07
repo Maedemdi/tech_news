@@ -1,17 +1,16 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import News, Tag
 from .serializers import NewsSerializerPost, NewsSerializerList, TagSerializer
+from .filters import NewsFilter
 
 
 class NewsViewset(viewsets.ModelViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializerPost
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['tags',]
-    search_fields = ['title', 'content', 'author']
-
+    filter_backends = [DjangoFilterBackend,]
+    filterset_class = NewsFilter
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
