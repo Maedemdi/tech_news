@@ -11,28 +11,11 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('label',)
 
 
-class NewsSerializerList(serializers.ModelSerializer):
-    # title = serializers.CharField(max_length=70)
-    # content = serializers.CharField(max_length=None)
-    # date = serializers.DateField()
-    # author = serializers.CharField(max_length=100)
-    # url = serializers.URLField()
+class NewsSerializer(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(
-        slug_field='label', read_only = True, many=True)
+        queryset = Tag.objects.all(), slug_field='label', many=True)
 
     class Meta:
         model = News
-        fields = ('title', 'content', 'date', 'author', 'url', 'tags')
-
-class NewsSerializerPost(serializers.ModelSerializer):
-    # title = serializers.CharField(max_length=70)
-    # content = serializers.CharField(max_length=None)
-    # date = serializers.DateField()
-    # author = serializers.CharField(max_length=100)
-    # url = serializers.URLField()
-    # tags = serializers.SlugRelatedField(
-    #     slug_field='label', query_set=Tag.objects.all(), many=True)
-
-    class Meta:
-        model = News
-        fields = ('title', 'content', 'date', 'author', 'url', 'tags')
+        fields = ('id', 'title', 'content', 'date', 'author', 'url', 'tags')
+    

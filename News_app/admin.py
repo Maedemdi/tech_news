@@ -6,7 +6,8 @@ class TagAdmin(admin.ModelAdmin):
     pass
 
 class NewsAdmin(admin.ModelAdmin): 
-    pass
+    date_hierarchy = 'date'
+    list_display = ['title', 'author', 'date']
 
 admin.site.register(Tag, TagAdmin)
 admin.site.register(News, NewsAdmin)
