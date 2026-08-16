@@ -6,23 +6,37 @@ from ..views import NewsViewset, TagViewset
 from ..models import News, Tag
 
 
-class NewsViewSet_Test(APITestCase):
+class TagViewset_Test(APITestCase):
 
-    def test_home_status_code(self):
-        response = self.client.get('/')
-        # reverse('news_list')
+    def test_tags_list_status_code(self):
+        response = self.client.get(reverse('tags-list'))
         self.assertEqual(response.status_code, 200)
 
-    def test_post_status_code(self):
-        some_tag = Tag.objects.create(label='idk')
-        url = '/'
+    def test_correct_tags_post_request(self):
+        url = reverse('tags-list')
+        dummy_data = {'label': 'something'}
+        response = self.client.post(url, dummy_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Tag.objects.count(), 1)
+        self.assertEqual(Tag.objects.get().label, 'something')
+
+
+class NewsViewset_Test(APITestCase):
+
+    def test_news_list_status_code(self):
+        response = self.client.get(reverse('news-list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_correct_news_post_request(self):
+        Tag.objects.create(label='idk')
+        url = reverse('news-list')
         dummy_data = {
             'title':'testing',
             'content': 'testing',
-            'date' : '0101-01-01',
+            'date' : '2026-01-01',
             'author': 'maede',
-            'url':'https://127.0.0.1',}
-            # 'tags': [some_tag]}
+            'url': 'https://something.com/',
+            'tags': ['idk']}
         response = self.client.post(url, dummy_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(News.objects.count(), 1)
