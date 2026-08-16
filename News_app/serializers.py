@@ -4,7 +4,6 @@ from .models import Tag, News
 
 
 class TagSerializer(serializers.ModelSerializer):
-    # label = serializers.CharField()
 
     class Meta:
         model = Tag

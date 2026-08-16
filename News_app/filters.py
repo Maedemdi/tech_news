@@ -14,9 +14,7 @@ class NewsFilter(django_filters.FilterSet):
         fields = ['tags']
 
     def news_inclusion(self, queryset, name, value):
-        name = 'Display content including:'
         return queryset.filter(content__icontains=value)
 
     def news_exclusion(self, queryset, name, value):
-        name = 'Display content excluding:'
         return queryset.exclude(content__icontains=value)
