@@ -31,9 +31,9 @@ class NewsViewset_Test(APITestCase):
         Tag.objects.create(label='idk')
         url = reverse('news-list')
         dummy_data = {
-            'title':'testing',
+            'title': 'testing',
             'content': 'testing',
-            'date' : '2026-01-01',
+            'date': '2026-01-01',
             'author': 'maede',
             'url': 'https://something.com/',
             'tags': ['idk']}
@@ -41,4 +41,3 @@ class NewsViewset_Test(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(News.objects.count(), 1)
         self.assertEqual(News.objects.get().title, 'testing')
-
