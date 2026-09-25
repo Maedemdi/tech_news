@@ -8,12 +8,12 @@ class Tag(models.Model):
         return self.label
 
 class News(models.Model):
-    title = models.CharField(max_length=70)
-    content = models.TextField()
-    date = models.DateField()
-    author = models.CharField(max_length=100)
-    url = models.URLField()
-    tags = models.ManyToManyField(Tag)
+    title = models.CharField(max_length=500)
+    content = models.TextField(null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+    author = models.CharField(max_length=100, null=True, blank=True)
+    url = models.URLField(null=True, blank=True)
+    tags = models.ManyToManyField(Tag, null=True, blank=True)
 
     class Meta:
         verbose_name_plural = 'News'

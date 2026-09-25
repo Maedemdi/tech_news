@@ -23,7 +23,6 @@ class NewsScraperPipeline:
                 password=os.getenv("DB_PASS"),
             )
 
-        
 
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
