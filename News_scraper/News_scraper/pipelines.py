@@ -23,6 +23,9 @@ class NewsScraperPipeline:
                 password=os.getenv("DB_PASS"),
             )
 
+            self.cursor = self.connection.cursor()
+
+
 
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
@@ -38,10 +41,10 @@ class NewsScraperPipeline:
                 """,
                 (
                     adapter.get("title"),
-                    None,
-                    None,
-                    None,
-                    None,
+                    adapter.get("content"),
+                    adapter.get("date"),
+                    adapter.get("author"),
+                    adapter.get("url")
                 )
             )
 

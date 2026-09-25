@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-
-=======
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -20,4 +16,3 @@ class NewsViewset(viewsets.ModelViewSet):
 class TagViewset(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
->>>>>>> Challenge-1

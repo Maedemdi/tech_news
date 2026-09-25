@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 from django.db import models
-=======
-from django.db import models
-
 
 class Tag(models.Model):
     label = models.CharField()
@@ -24,4 +20,3 @@ class News(models.Model):
     def __str__(self):
         return self.title
     
->>>>>>> Challenge-1

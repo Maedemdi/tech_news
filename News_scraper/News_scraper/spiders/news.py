@@ -54,6 +54,11 @@ class NewsSpider(Spider):
         loader = ItemLoader(
             item=NewsItem(), selector=response.css("article.contents"))
         loader.add_css("title", "h1.eTcJxy::text")
+        loader.add_css("author", "span.flJYlr::text")
+        loader.add_value("url", response.url)
+        loader.add_css("content", "p.article-lead::text")
+        loader.add_css("content", "p.hahzmx::text")
+        loader.add_css("date", "time::attr(datetime)")
         yield loader.load_item()
         # content = resoponse.css("p.typography__StyledDynamicTypographyComponent-sc-4caf251e-0.jkVxA-D.ParagraphElement__ParagraphBase-sc-867699c3-0.hahzmx").getall()
         # author = resoponse.css("span.flJYlr::text").get()
