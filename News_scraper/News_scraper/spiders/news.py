@@ -59,9 +59,6 @@ class NewsSpider(Spider):
         loader.add_css("content", "p.article-lead::text")
         loader.add_css("content", "p.hahzmx::text")
         loader.add_css("date", "time::attr(datetime)")
+        loader.add_css("tags", "li.goGvvZ a span.hBZvuY::text")
         yield loader.load_item()
-        # content = resoponse.css("p.typography__StyledDynamicTypographyComponent-sc-4caf251e-0.jkVxA-D.ParagraphElement__ParagraphBase-sc-867699c3-0.hahzmx").getall()
-        # author = resoponse.css("span.flJYlr::text").get()
-        # date = resoponse.css("time[datetime].attr(datetime)").get()
-        # url = resoponse.url
-        # tags = resoponse.css("a span.typography__StyledDynamicTypographyComponent-sc-4caf251e-0.hBZvuY")
+        

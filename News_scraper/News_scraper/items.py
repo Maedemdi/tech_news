@@ -19,5 +19,4 @@ class NewsItem(Item):
         output_processor=TakeFirst())
     url = Field(
         output_processor=TakeFirst())
-    # tags = Field(
-    #     output_processor=TakeFirst())
+    tags = Field()

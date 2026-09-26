@@ -1,63 +1,78 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-
-
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
-import psycopg2
 import os
+import django
+import sys
+import asyncio
+
 from dotenv import load_dotenv
+from itemadapter import ItemAdapter
+from django.db import transaction, close_old_connections
+from pathlib import Path
+
+from News_app.models import News, Tag
+
 load_dotenv()
+
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+
+sys.path.insert(0, str(BASE_DIR))
+
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "TechNews.settings"
+)
+
+django.setup()
 
 
 class NewsScraperPipeline:
 
-    def open_spider(self, spider):
-            self.connection = psycopg2.connect(
-                host=os.getenv("DB_HOST"),
-                port=os.getenv("DB_PORT"),
-                dbname=os.getenv("DB_NAME"),
-                user=os.getenv("DB_USER"),
-                password=os.getenv("DB_PASS"),
-            )
+    async def process_item(self, item, spider):
+        return await asyncio.to_thread(
+            self.save_item, item, spider
+        )
 
-            self.cursor = self.connection.cursor()
-
-
-
-    def process_item(self, item, spider):
+    def save_item(self, item, spider):
         adapter = ItemAdapter(item)
 
-        spider.logger.info(f"ITEM RECEIVED: {dict(adapter)}")
+        close_old_connections()
 
         try:
-            self.cursor.execute(
-                """
-                INSERT INTO "News_app_news"
-                (title, content, date, author, url)
-                VALUES (%s, %s, %s, %s, %s)
-                """,
-                (
-                    adapter.get("title"),
-                    adapter.get("content"),
-                    adapter.get("date"),
-                    adapter.get("author"),
-                    adapter.get("url")
+            with transaction.atomic():
+                news, created = News.objects.update_or_create(
+                    url=adapter["url"],
+                    defaults={
+                        "title": adapter.get("title"),
+                        "content": adapter.get("content"),
+                        "date": adapter.get("date"),
+                        "author": adapter.get("author"),
+                    }
                 )
+
+                tags = []
+                for tag_name in adapter.get("tags", []):
+                    tag, _ = Tag.objects.get_or_create(
+                        label=tag_name.strip()
+                    )
+                    tags.append(tag)
+                news.tags.set(tags)
+
+            spider.logger.info(
+                f"News {'created' if created else 'updated'}: "
+                f"{news.url}"
+            )
+            spider.logger.info(
+                f"Scraped tags for {adapter.get('url')}: "
+                f"{adapter.get('tags')}"
             )
 
-            self.connection.commit()
+        except Exception:
+            spider.logger.exception(
+                f"Failed to save news: {adapter.get('url')}"
+            )
+            raise
 
-            spider.logger.info("INSERT SUCCESSFUL")
-
-        except Exception as e:
-            self.connection.rollback()
-            spider.logger.error(f"INSERT FAILED: {e}")
+        finally:
+            close_old_connections()
 
         return item
-
-    def close_spider(self, spider):
-        self.cursor.close()
-        self.connection.close()
