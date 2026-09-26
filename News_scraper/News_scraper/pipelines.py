@@ -3,19 +3,15 @@ import django
 import sys
 import asyncio
 
-from dotenv import load_dotenv
 from itemadapter import ItemAdapter
 from django.db import transaction, close_old_connections
 from pathlib import Path
 
 from News_app.models import News, Tag
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parents[2]  # path object
 
-
-BASE_DIR = Path(__file__).resolve().parents[2]
-
-sys.path.insert(0, str(BASE_DIR))
+sys.path.insert(0, str(BASE_DIR))   # adding BASE_DIR to the beginning of python's import path
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE",
@@ -28,11 +24,11 @@ django.setup()
 class NewsScraperPipeline:
 
     async def process_item(self, item, spider):
-        return await asyncio.to_thread(
+        return await asyncio.to_thread( # runs self.save_item(item, spider) in another thread
             self.save_item, item, spider
         )
 
-    def save_item(self, item, spider):
+    def save_item(self, item, spider):  # synchronous
         adapter = ItemAdapter(item)
 
         close_old_connections()
@@ -40,9 +36,9 @@ class NewsScraperPipeline:
         try:
             with transaction.atomic():
                 news, created = News.objects.update_or_create(
-                    url=adapter["url"],
+                    url=adapter["url"], #required field
                     defaults={
-                        "title": adapter.get("title"),
+                        "title": adapter["title"],  # required field
                         "content": adapter.get("content"),
                         "date": adapter.get("date"),
                         "author": adapter.get("author"),
@@ -50,12 +46,12 @@ class NewsScraperPipeline:
                 )
 
                 tags = []
-                for tag_name in adapter.get("tags", []):
+                for tag_label in adapter.get("tags", []):
                     tag, _ = Tag.objects.get_or_create(
-                        label=tag_name.strip()
+                        label=tag_label.strip()
                     )
                     tags.append(tag)
-                news.tags.set(tags)
+                news.tags.set(tags)  # could be done with add too
 
             spider.logger.info(
                 f"News {'created' if created else 'updated'}: "
@@ -75,4 +71,4 @@ class NewsScraperPipeline:
         finally:
             close_old_connections()
 
-        return item
+        return item     # received by the following pipeline
