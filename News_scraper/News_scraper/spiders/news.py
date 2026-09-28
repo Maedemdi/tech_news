@@ -3,6 +3,20 @@ from scrapy.loader import ItemLoader
 from News_scraper.items import NewsItem
 from urllib.parse import urljoin
 
+import os
+import sys
+import django
+
+# Add the project root (TechNews_dir) to Python's import path
+BASE_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../..")
+)
+sys.path.insert(0, BASE_DIR)
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TechNews.settings")
+django.setup()
+
+from News_app.models import News, Tag
 
 class NewsSpider(Spider):
     name = "news_spider"

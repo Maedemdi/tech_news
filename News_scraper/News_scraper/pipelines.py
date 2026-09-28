@@ -7,18 +7,33 @@ from itemadapter import ItemAdapter
 from django.db import transaction, close_old_connections
 from pathlib import Path
 
-from News_app.models import News, Tag
+# from ...News_app.models import News, Tag
 
-BASE_DIR = Path(__file__).resolve().parents[2]  # path object
+# BASE_DIR = Path(__file__).resolve().parents[2]  # path object
 
-sys.path.insert(0, str(BASE_DIR))   # adding BASE_DIR to the beginning of python's import path
+# sys.path.insert(0, str(BASE_DIR))   # adding BASE_DIR to the beginning of python's import path
 
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE",
-    "TechNews.settings"
+# os.environ.setdefault(
+#     "DJANGO_SETTINGS_MODULE",
+#     "TechNews.settings"
+# )
+
+# django.setup()
+
+import os
+import sys
+import django
+
+# Add the project root (TechNews_dir) to Python's import path
+BASE_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../..")
 )
+sys.path.insert(0, BASE_DIR)
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TechNews.settings")
 django.setup()
+
+from News_app.models import News, Tag
 
 
 class NewsScraperPipeline:
