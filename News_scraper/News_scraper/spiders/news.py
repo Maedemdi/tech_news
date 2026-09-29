@@ -60,7 +60,7 @@ class NewsSpider(Spider):
     def parse_details(self, response):
         loader = ItemLoader(
             item=NewsItem(), selector=response.css("article.contents"))
-        loader.add_css("title", "h1.typography__StyledDynamicTypographyComponent-sc-c97798ae-0::text")
+        loader.add_css("title", "header.ArticleHeader__TemplateStandard-sc-e19b71f8-5 h1.typography__StyledDynamicTypographyComponent-sc-c97798ae-0::text")
         loader.add_css("author", "span.wrMhL::text")
         loader.add_value("url", response.url)
         loader.add_css("content", "p.article-lead::text")

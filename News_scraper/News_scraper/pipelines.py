@@ -1,4 +1,3 @@
-
 import os
 import django
 import sys
@@ -25,15 +24,17 @@ os.environ.setdefault(
 
 django.setup()
 
+from News_app.tasks import cache_news
 from News_app.models import News, Tag
 
 class NewsScraperPipeline:
 
     async def process_item(self, item, spider):
         print(isinstance(item, NewsItem))
-        return await asyncio.to_thread(  # runs self.save_item(item, spider) in another thread
+        await asyncio.to_thread(  # runs self.save_item(item, spider) in another thread
             self.save_item, item, spider
         )
+        return item
 
     def save_item(self, item, spider):  # synchronous
         adapter = ItemAdapter(item)
@@ -60,6 +61,11 @@ class NewsScraperPipeline:
                     tags.append(tag)
                 news.tags.set(tags)  # could be done with add too
 
+                transaction.on_commit(
+                    lambda: cache_news.delay(news.id)
+                )
+    
+         
             # spider.logger.info(
             #     f"News {'created' if created else 'updated'}: "
             #     f"{news.url}"
@@ -78,4 +84,4 @@ class NewsScraperPipeline:
         finally:
             close_old_connections()
 
-        #return item     # received by the following pipeline
+        # return item     # received by the following pipeline

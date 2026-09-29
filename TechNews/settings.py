@@ -135,3 +135,16 @@ CELERY_RESULT_BACKEND = "redis://localhost:6379/1"
 CELERY_BEAT_SCHEDULER = (
     "django_celery_beat.schedulers:DatabaseScheduler"
 )
+
+
+# Caching with redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",   # Tells Django to use Redis for caching
+        "LOCATION": os.getenv("REDIS_HOST"),    # Redis server address and database number
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",    # The Redis client implementation
+        },
+        "TIMEOUT": 300,     # Default cache expiration in seconds
+    }
+}

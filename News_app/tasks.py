@@ -1,6 +1,10 @@
 import os
-from celery import shared_task
 import subprocess
+from celery import shared_task
+from django.core.cache import cache
+
+from .models import News
+from .serializers import NewsSerializer
 
 @shared_task
 def run_spider():
@@ -20,3 +24,18 @@ def run_spider():
         return "Scrapy executed successfully!"
     else: 
         return "Scrapy failed!"
+    
+
+@shared_task
+def cache_news(news_id):
+    cache_key = f"news:{news_id}"
+    news = (
+        News.objects
+        .prefetch_related("tags")
+        .get(id=news_id)
+    )
+    data = NewsSerializer(news).data
+    cache.set(cache_key, data, timeout=120)
+
+    print(f"Cached news with id {news_id}")
+    return data
