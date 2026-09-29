@@ -3,27 +3,19 @@ from scrapy.loader import ItemLoader
 from News_scraper.items import NewsItem
 from urllib.parse import urljoin
 
-import os
-import sys
-import django
-
-# Add the project root (TechNews_dir) to Python's import path
-BASE_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../..")
-)
-sys.path.insert(0, BASE_DIR)
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TechNews.settings")
-django.setup()
-
-from News_app.models import News, Tag
 
 class NewsSpider(Spider):
     name = "news_spider"
+    page_count = 1
 
     async def start(self):
-        yield Request(
-            "https://www.zoomit.ir/archive?sort=Newest&publishDate=All&readingTime=All&pageNumber=1",
+        yield self.page_request(self.page_count)
+    
+    def page_request(self, page_count):
+        url = "https://www.zoomit.ir/archive?sort=Newest&publishDate=All&readingTime=All&pageNumber="
+        return Request(
+            url + str(page_count),
+            callback=self.parse,
             meta={
                 "playwright": True,
                 # to access the actual browser page, saved in meta dict
@@ -48,7 +40,7 @@ class NewsSpider(Spider):
         selector = Selector(text=await page.content())
         news_items = selector.css("div.scroll-m-16")
 
-        print("News found in this page:", len(news_items))
+        print(f"News found in page {self.page_count}:", len(news_items))
 
         for news_item in news_items:
             link = news_item.css(
@@ -61,14 +53,18 @@ class NewsSpider(Spider):
 
         await page.close()
 
+        self.page_count += 1
+        if self.page_count <= 3:
+            yield self.page_request(self.page_count)
+
     def parse_details(self, response):
         loader = ItemLoader(
             item=NewsItem(), selector=response.css("article.contents"))
-        loader.add_css("title", "h1.eTcJxy::text")
-        loader.add_css("author", "span.flJYlr::text")
+        loader.add_css("title", "h1.typography__StyledDynamicTypographyComponent-sc-c97798ae-0::text")
+        loader.add_css("author", "span.wrMhL::text")
         loader.add_value("url", response.url)
         loader.add_css("content", "p.article-lead::text")
-        loader.add_css("content", "p.hahzmx::text")
+        loader.add_css("content", "p.typography__StyledDynamicTypographyComponent-sc-c97798ae-0.ParagraphElement__ParagraphBase-sc-e00494a0-0::text")
         loader.add_css("date", "time::attr(datetime)")
-        loader.add_css("tags", "li.goGvvZ a span.hBZvuY::text")
+        loader.add_css("tags", "li.ArticleCategory__BreadcrumbItem-sc-4ed7a5f6-1 a span.typography__StyledDynamicTypographyComponent-sc-c97798ae-0::text")
         yield loader.load_item()

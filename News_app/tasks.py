@@ -13,11 +13,10 @@ def run_spider():
         text=True,
         )
     
-    print("STDOUT:", result.stdout)
-    print("STDERR:", result.stderr)
-    print("Return code:", result.returncode)
+    print("STDOUT:", result.stdout)   # The normal output produced by Scrapy
+    print("STDERR:", result.stderr)   # Error output produced by Scrapy
+    print("Return code:", result.returncode)    # The process's exit code
     if result.returncode == 0 :
-        print(result.stdout)
         return "Scrapy executed successfully!"
     else: 
         return "Scrapy failed!"
