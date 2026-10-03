@@ -28,6 +28,7 @@ def run_spider():
 
 @shared_task
 def cache_news(news_id):
+    print("[[[[[CACHE]]]]]")
     cache_key = f"news:{news_id}"
     news = (
         News.objects
