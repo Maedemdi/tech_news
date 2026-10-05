@@ -18,12 +18,28 @@ RUN apt-get update \
 # so Docker can cache this layer
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+
+ENV HTTP_PROXY=${HTTP_PROXY}
+ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV NO_PROXY=${NO_PROXY}
+
+RUN pip install --no-cache-dir \
+    --default-timeout=30 \
+    --retries=2 \
+    -r requirements.txt
 RUN playwright install
 
 # Copy Django project
 COPY . .
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 8000
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
