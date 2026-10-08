@@ -1,5 +1,24 @@
 services:
 
+  migrate:
+    build:
+      context: .
+      args:
+        HTTP_PROXY: http://host.docker.internal:2080
+        HTTPS_PROXY: http://host.docker.internal:2080
+        NO_PROXY: localhost,127.0.0.1
+    container_name: django_migrate
+    command: python manage.py migrate --noinput
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
   web:
     build:
       context: .
@@ -20,6 +39,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      migrate:
+        condition: service_completed_successfully
 
   celery:
     build:
@@ -39,6 +60,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      migrate:
+        condition: service_completed_successfully
 
   celery_beat:
     build:
@@ -58,6 +81,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      migrate:
+        condition: service_completed_successfully
 
   db:
     image: postgres:18
