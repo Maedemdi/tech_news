@@ -4,9 +4,11 @@ services:
     build:
       context: .
       args:
-        HTTP_PROXY: http://host.docker.internal:2080
-        HTTPS_PROXY: http://host.docker.internal:2080
+        HTTP_PROXY: http://host.docker.internal:10808
+        HTTPS_PROXY: http://host.docker.internal:10808
         NO_PROXY: localhost,127.0.0.1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     container_name: django_migrate
     command: python manage.py migrate --noinput
     volumes:
@@ -23,9 +25,11 @@ services:
     build:
       context: .
       args:
-        HTTP_PROXY: http://host.docker.internal:2080
-        HTTPS_PROXY: http://host.docker.internal:2080
+        HTTP_PROXY: http://host.docker.internal:10808
+        HTTPS_PROXY: http://host.docker.internal:10808
         NO_PROXY: localhost,127.0.0.1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     container_name: django_web
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -46,9 +50,11 @@ services:
     build:
       context: .
       args:
-        HTTP_PROXY: http://host.docker.internal:2080
-        HTTPS_PROXY: http://host.docker.internal:2080
+        HTTP_PROXY: http://host.docker.internal:10808
+        HTTPS_PROXY: http://host.docker.internal:10808
         NO_PROXY: localhost,127.0.0.1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     container_name: celery_worker
     command: celery -A TechNews worker --loglevel=info
     volumes:
@@ -67,11 +73,17 @@ services:
     build:
       context: .
       args:
-        HTTP_PROXY: http://host.docker.internal:2080
-        HTTPS_PROXY: http://host.docker.internal:2080
+        HTTP_PROXY: http://host.docker.internal:10808
+        HTTPS_PROXY: http://host.docker.internal:10808
         NO_PROXY: localhost,127.0.0.1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     container_name: celery_beat
-    command: celery -A TechNews beat --loglevel=info
+    command: >
+      sh -c "python manage.py shell -c
+      'from News_app.beat_setup import scraper_beat_task; scraper_beat_task()'
+      && celery -A TechNews beat --loglevel=info
+      --scheduler django_celery_beat.schedulers:DatabaseScheduler"
     volumes:
       - .:/app
     env_file:

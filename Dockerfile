@@ -26,11 +26,14 @@ ENV HTTP_PROXY=${HTTP_PROXY}
 ENV HTTPS_PROXY=${HTTPS_PROXY}
 ENV NO_PROXY=${NO_PROXY}
 
+# RUN getent hosts host.docker.internal || cat /etc/hosts
+
 RUN pip install --no-cache-dir \
     --default-timeout=30 \
     --retries=2 \
     -r requirements.txt
-RUN playwright install
+
+RUN playwright install --with-deps chromium
 
 # Copy Django project
 COPY . .
